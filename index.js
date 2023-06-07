@@ -34,11 +34,21 @@ async function run() {
 
     const database = client.db("MelodicAdventures");
     const userCollection = database.collection("users");
+    const classCollection = database.collection("classes");
     app.post("/users",async (req,res)=>{
 
         const body=req.body;
         console.log(body)
         const result = await userCollection.insertOne(body)
+        res.send()
+  
+      })
+
+      app.post("/classes",async (req,res)=>{
+
+        const body=req.body;
+        console.log(body)
+        const result = await classCollection.insertOne(body)
         res.send()
   
       })
