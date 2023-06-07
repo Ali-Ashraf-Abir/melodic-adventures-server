@@ -64,12 +64,67 @@ async function run() {
     app.get ('/currentuser/:email',async(req,res)=>{
 
         const email=req.params.email;
-        console.log(email)
+
         const result = await userCollection.find({email : email}).toArray()
         res.send(result)
 
 
     })
+
+    app.post (`https://api.imgbb.com/1/upload?expiration=600&key=${process.env.VITE_IMAGEDB_API} `),async(req,res)=>{
+
+    const body=req.body;
+    console.log(body)
+
+    }
+
+    app.delete('/deleteClass/:id',async (req,res)=>{
+
+      const id=req.params.id;
+
+      const query= {_id : new ObjectId(id)}
+
+      const result = await classCollection.deleteOne(query)
+      
+      res.send(result)
+
+
+    })
+
+    // individual instructor classes
+    
+    app.get('/currentuserclass/:email',async(req,res)=>{
+      const email=req.params.email;
+
+      const result = await classCollection.find({email : email}).toArray()
+      res.send(result)
+    })
+
+
+    app.put('/updateclass/:id',async(req,res)=>{
+
+      const id=req.params.id
+      console.log(id)
+      const body=req.body
+      console.log(body)
+      const filter={_id: new ObjectId(id)}
+      const updatedDoc={
+        $set:{
+          price:body.price,
+          name:body.name,
+          description:body.description
+          
+
+        }
+      }
+
+      const result=await classCollection.updateOne(filter,updatedDoc);
+      res.send(result)
+
+
+    })
+
+
 
   } finally {
     // Ensures that the client will close when you finish/error
