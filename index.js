@@ -63,6 +63,17 @@ async function run() {
   
       })
 
+
+
+      app.get("/allclasses",async (req,res)=>{
+
+  
+   
+        const result = await classCollection.find().toArray()
+        res.send(result)
+  
+      })
+
     app.get ('/allusers',async (req,res)=>{
 
         const cursor = userCollection.find().toArray();
@@ -106,6 +117,61 @@ async function run() {
 
 
   })
+
+  app.put('/manageclass/:id',async(req,res)=>{
+
+
+  
+
+
+    const body=req.body
+    console.log(body)
+
+    const id=req.params.id;
+
+    const query= {_id : new ObjectId(id)}
+
+    const updatedDoc={
+      $set:{
+       status:body.status,
+
+      }
+      }
+    
+      const result=await classCollection.updateOne(query,updatedDoc);
+    
+      res.send(result)
+
+
+
+})
+
+app.put('/givefeedback/:id',async(req,res)=>{
+
+
+  
+
+
+  const body=req.body
+  console.log(body)
+
+  const id=req.params.id;
+
+  const query= {_id : new ObjectId(id)}
+
+  const updatedDoc={
+    $set:{
+     feedback:body.feedback
+    }
+    }
+  
+    const result=await classCollection.updateOne(query,updatedDoc);
+  
+    res.send(result)
+
+
+
+})
 
     app.post (`https://api.imgbb.com/1/upload?expiration=600&key=${process.env.VITE_IMAGEDB_API} `),async(req,res)=>{
 
