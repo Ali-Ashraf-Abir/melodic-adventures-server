@@ -13,6 +13,7 @@ app.use(express.json())
 
 
 const { MongoClient, ServerApiVersion,ObjectId } = require('mongodb');
+const { use } = require('express/lib/router');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ravtcpm.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -39,7 +40,16 @@ async function run() {
 
         const body=req.body;
         console.log(body)
-        const result = await userCollection.insertOne(body)
+        const query = {email : body.email }
+        const existingUser= await userCollection.findOne(query)
+        if(existingUser){
+          console.log('already exists')
+          return
+        }
+        else{
+          const result = await userCollection.insertOne(body)
+        }
+        
         res.send()
   
       })
@@ -70,6 +80,32 @@ async function run() {
 
 
     })
+
+
+    app.put ('/manageuser/:email',async(req,res)=>{
+
+
+  
+
+      const email=req.params.email;
+      const body=req.body
+      console.log(body)
+      console.log(email)
+      const filter={email:email}
+
+      const updatedDoc={
+        $set:{
+         role:body.role,
+        }
+        }
+      
+        const result=await userCollection.updateOne(filter,updatedDoc);
+      
+        res.send(result)
+
+
+
+  })
 
     app.post (`https://api.imgbb.com/1/upload?expiration=600&key=${process.env.VITE_IMAGEDB_API} `),async(req,res)=>{
 
