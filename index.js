@@ -6,7 +6,7 @@ const app = express()
 require('dotenv').config()
 
 const port = process.env.PORT || 5000;
-
+const stripe =require('stripe')(process.env.PAYMENT_SECRET_KEY)
 app.use(cors())
 
 app.use(express.json())
@@ -14,6 +14,7 @@ app.use(express.json())
 
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const { use } = require('express/lib/router');
+const { default: Stripe } = require('stripe');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ravtcpm.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -129,17 +130,41 @@ async function run() {
       console.log(body)
       console.log(email)
       const filter = { email: email }
-
+   
       
-
-      const result = await userCollection.updateOne(filter, { $push: { addedClasses: { $each: body } } });;
+    
+        const result = await userCollection.updateOne(filter, { $push: { addedClasses: { $each: body } } });;
 
       res.send(result)
+      
+      
 
 
 
     })
 
+    app.put('/manageuserpayment/:email', async (req, res) => {
+
+
+
+
+      const email = req.params.email;
+      const body = req.body.payments
+      console.log(body)
+      console.log(email)
+      const filter = { email: email }
+   
+      
+    
+        const result = await userCollection.updateOne(filter, { $push: { payments: { $each: body } } });;
+
+      res.send(result)
+      
+      
+
+
+
+    })
 
 
     app.put('/manageclass/:id', async (req, res) => {
@@ -208,6 +233,33 @@ async function run() {
 
     })
 
+    app.put('/deleteclass/:id', async (req, res) => {
+
+
+
+
+
+      const body = req.body
+      console.log(body)
+
+      const id = req.params.id;
+
+      const query = { _id: new ObjectId(id) }
+
+      const updatedDoc = {
+        $set: {
+          addedClasses :body.addedClasses
+        }
+      }
+
+      const result = await userCollection.updateOne(query, updatedDoc);
+
+      res.send(result)
+
+
+
+    })
+
     app.post(`https://api.imgbb.com/1/upload?expiration=600&key=${process.env.VITE_IMAGEDB_API} `), async (req, res) => {
 
       const body = req.body;
@@ -264,8 +316,54 @@ async function run() {
     })
 
 
+    app.put('/updateclassseats/:id', async (req, res) => {
 
-  } finally {
+      const id = req.params.id
+      console.log(id)
+      const body = req.body
+      console.log(body)
+      const filter = { _id: new ObjectId(id) }
+      const updatedDoc = {
+        $set: {
+          totalEnrolled:body.totalEnrolled,
+          seats:body.seats
+
+
+        }
+      }
+
+      const result = await classCollection.updateOne(filter, updatedDoc);
+      res.send(result)
+
+
+    })
+
+
+    app.post('/create-payment-intent',async(req,res)=>{
+
+      console.log(process.env.PAYMENT_SECRET_KEY)
+      const {price}=req.body 
+      const amount =parseFloat(price*100)
+      console.log(price,amount)
+      const paymentIntent=await stripe.paymentIntents.create({
+        amount:amount,
+        currency:'usd',
+        payment_method_types:['card']
+      })
+
+      res.send({
+        clientSecret:paymentIntent.client_secret
+      })
+
+    })
+
+
+   
+
+
+
+  } 
+  finally {
     // Ensures that the client will close when you finish/error
     // await client.close();
   }
