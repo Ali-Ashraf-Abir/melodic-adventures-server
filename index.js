@@ -40,11 +40,11 @@ async function run() {
     app.post("/users", async (req, res) => {
 
       const body = req.body;
-      console.log(body)
+     
       const query = { email: body.email }
       const existingUser = await userCollection.findOne(query)
       if (existingUser) {
-        console.log('already exists')
+        
         return
       }
       else {
@@ -58,7 +58,7 @@ async function run() {
     app.post("/classes", async (req, res) => {
 
       const body = req.body;
-      console.log(body)
+  
       const result = await classCollection.insertOne(body)
       res.send()
 
@@ -101,8 +101,7 @@ async function run() {
 
       const email = req.params.email;
       const body = req.body
-      console.log(body)
-      console.log(email)
+
       const filter = { email: email }
 
       const updatedDoc = {
@@ -127,8 +126,7 @@ async function run() {
 
       const email = req.params.email;
       const body = req.body.addedClass
-      console.log(body)
-      console.log(email)
+
       const filter = { email: email }
    
       
@@ -150,8 +148,7 @@ async function run() {
 
       const email = req.params.email;
       const body = req.body.payments
-      console.log(body)
-      console.log(email)
+
       const filter = { email: email }
    
       
@@ -166,6 +163,15 @@ async function run() {
 
     })
 
+    app.get('/popularclasses',async(req,res)=>{
+
+
+
+      const sortedDocuments = await classCollection.find().sort({ totalEnrolled: -1 }).toArray();
+
+      res.send(sortedDocuments)
+    })
+
 
     app.put('/manageclass/:id', async (req, res) => {
 
@@ -174,7 +180,7 @@ async function run() {
 
 
       const body = req.body
-      console.log(body)
+ 
 
       const id = req.params.id;
 
@@ -213,7 +219,7 @@ async function run() {
 
 
       const body = req.body
-      console.log(body)
+
 
       const id = req.params.id;
 
@@ -240,7 +246,7 @@ async function run() {
 
 
       const body = req.body
-      console.log(body)
+
 
       const id = req.params.id;
 
@@ -263,7 +269,7 @@ async function run() {
     app.post(`https://api.imgbb.com/1/upload?expiration=600&key=${process.env.VITE_IMAGEDB_API} `), async (req, res) => {
 
       const body = req.body;
-      console.log(body)
+
 
     }
 
@@ -295,9 +301,9 @@ async function run() {
     app.put('/updateclass/:id', async (req, res) => {
 
       const id = req.params.id
-      console.log(id)
+
       const body = req.body
-      console.log(body)
+
       const filter = { _id: new ObjectId(id) }
       const updatedDoc = {
         $set: {
@@ -319,9 +325,9 @@ async function run() {
     app.put('/updateclassseats/:id', async (req, res) => {
 
       const id = req.params.id
-      console.log(id)
+
       const body = req.body
-      console.log(body)
+
       const filter = { _id: new ObjectId(id) }
       const updatedDoc = {
         $set: {
@@ -341,10 +347,10 @@ async function run() {
 
     app.post('/create-payment-intent',async(req,res)=>{
 
-      console.log(process.env.PAYMENT_SECRET_KEY)
+  
       const {price}=req.body 
       const amount =parseFloat(price*100)
-      console.log(price,amount)
+
       const paymentIntent=await stripe.paymentIntents.create({
         amount:amount,
         currency:'usd',
